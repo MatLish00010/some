@@ -1,22 +1,60 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
+import * as argon from 'argon2';
 
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthDto } from './dto';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable({})
 export class AuthService {
   constructor(private prisma: PrismaService) {}
 
-  login() {
-    return {
-      message: 'Test mess_1',
-    };
+  async login(dto: AuthDto) {
+    const user = await this.prisma.user
+      .findUniqueOrThrow({
+        where: {
+          email: dto.email,
+        },
+      })
+      .catch(() => {
+        throw new ForbiddenException('Email is not correct');
+      });
+
+    const pwMatches = await argon.verify(user.hash, dto.password).catch(() => {
+      throw new ForbiddenException('Password is not correct');
+    });
+
+    if (!pwMatches) throw new ForbiddenException('Password is not correct');
+
+    delete user.hash;
+    return user;
   }
 
-  signUp(dto: AuthDto) {
-    console.log('serviceDTO:', dto);
-    return {
-      message: 'Test mess_2',
-    };
+  async signUp(dto: AuthDto) {
+    const hash = await argon.hash(dto.password);
+
+    try {
+      const user = await this.prisma.user.create({
+        data: {
+          email: dto.email,
+          hash,
+        },
+        select: {
+          id: true,
+          email: true,
+          createAt: true,
+        },
+      });
+
+      return user;
+    } catch (e) {
+      if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code === 'P2002') {
+          throw new ForbiddenException('Credentials taken');
+        }
+      }
+
+      throw e;
+    }
   }
 }
