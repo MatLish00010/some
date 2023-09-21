@@ -32,7 +32,7 @@ export class AuthService {
 
     if (!pwMatches) throw new ForbiddenException('Password is not correct');
 
-    return this.signToken(user.id, user.email);
+    return await this.signToken(user.id, user.email);
   }
 
   async signUp(dto: AuthDto) {
@@ -57,15 +57,22 @@ export class AuthService {
     }
   }
 
-  signToken(userId: number, email: string) {
+  async signToken(
+    userId: number,
+    email: string,
+  ): Promise<{ access_token: string }> {
     const payload = {
       sub: userId,
       email,
     };
 
-    return this.jwt.signAsync(payload, {
+    const access_token = await this.jwt.signAsync(payload, {
       expiresIn: '15m',
       secret: this.config.get('JWT_SECRET'),
     });
+
+    return {
+      access_token,
+    };
   }
 }
