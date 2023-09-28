@@ -7,8 +7,8 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  directUrl = env("DIRECT_URL")
-  url       = env("DATABASE_URL")
+  directUrl = "postgres://admin:zPK2CRfMaow9@ep-billowing-rice-75326465.eu-central-1.aws.neon.tech/someDB"
+  url       = "postgres://admin:zPK2CRfMaow9@ep-billowing-rice-75326465-pooler.eu-central-1.aws.neon.tech/someDB?pgbouncer=true"
 }
 
 model User {
