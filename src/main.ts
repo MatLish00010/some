@@ -12,7 +12,7 @@ async function bootstrap() {
     }),
   );
   await app.listen(port, '0.0.0.0', () => {
-    console.log('started on: POST:' + port);
+    console.log('PORT:' + port);
   });
 }
 
