@@ -11,7 +11,7 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
-  await app.listen(port, `0.0.0.0:${port}`, () => {
+  await app.listen(port, '0.0.0.0', () => {
     console.log('ekek');
   });
 }
