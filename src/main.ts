@@ -11,7 +11,7 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
-  await app.listen(port, '100.20.92.101');
+  await app.listen(port, '192.168.100.44');
 }
 
 bootstrap();
